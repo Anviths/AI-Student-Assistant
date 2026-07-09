@@ -5,9 +5,13 @@ import com.anv.dto.BatchResponse;
 import com.anv.dto.FeeReceiptResponse;
 import com.anv.dto.StudentDto;
 import com.anv.service.StudentService;
+import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.stereotype.Component;
+
 @RequiredArgsConstructor
+@Component
 public class StudentTool {
     private final StudentService studentService;
 

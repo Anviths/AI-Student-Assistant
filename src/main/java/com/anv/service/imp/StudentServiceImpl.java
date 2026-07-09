@@ -1,12 +1,14 @@
 package com.anv.service.imp;
 
 import com.anv.dao.AttendanceRepository;
+import com.anv.dao.BatchRepository;
 import com.anv.dao.FeeReceiptRepository;
 import com.anv.dao.StudentRepository;
 import com.anv.dto.AttendanceResponse;
 import com.anv.dto.BatchResponse;
 import com.anv.dto.FeeReceiptResponse;
 import com.anv.dto.StudentDto;
+import com.anv.entity.Batch;
 import com.anv.entity.Student;
 import com.anv.service.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +23,10 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final AttendanceRepository attendanceRepository;
     private final FeeReceiptRepository feeReceiptRepository;
-
+    private final BatchRepository batchRepository;
     @Override
-    public StudentDto saveStudent(StudentDto studentDto) {
-        batch = batchRepository.findByBatchCode(dto.getBatchCode())
+    public StudentDto saveStudent(StudentDto dto) {
+       Batch batch = batchRepository.findByBatchCode(dto.getBatchCode())
                 .orElseThrow(() -> new RuntimeException("Batch not found"));
 
         Student student = new Student();
@@ -63,7 +65,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentDto updateStudent(String studentId, StudentDto studentDto) {
+    public StudentDto updateStudent(String studentId, StudentDto dto) {
         Student student = studentRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
@@ -118,12 +120,15 @@ public class StudentServiceImpl implements StudentService {
     }
     @Override
     public StudentDto getStudentProfile(String studentId) {
-        return null;
+        return getStudentByStudentId(studentId);
     }
 
     @Override
     public BatchResponse getBatchDetails(String studentId) {
-        return null;
+        StudentDto studentDto = getStudentByStudentId(studentId);
+        BatchResponse response = new BatchResponse();
+        response.setBatchCode(studentDto.getBatchCode());
+        return response;
     }
 
     @Override
