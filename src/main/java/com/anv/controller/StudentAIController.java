@@ -7,7 +7,9 @@ import com.anv.service.StudentService;
 import com.anv.tool.StudentTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,11 +22,12 @@ public class StudentAIController {
     private final StudentService studentService;
     private static final String CHAT_ID = ChatMemory.CONVERSATION_ID;
 
-    public StudentAIController(ChatClient.Builder chatClient, StudentService studentService, StudentTool studentTool,ChatMemory chatMemory) {
+    public StudentAIController(ChatClient.Builder chatClient, StudentService studentService, StudentTool studentTool, ChatMemory chatMemory, VectorStore vectorStore) {
         this.chatClient = chatClient
                 .defaultTools(studentTool)
                 .defaultSystem(SystemPrompt.SYSTEM_PROMPT)
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                        QuestionAnswerAdvisor.builder(vectorStore).build())
                 .build();
         this.studentService = studentService;
 
