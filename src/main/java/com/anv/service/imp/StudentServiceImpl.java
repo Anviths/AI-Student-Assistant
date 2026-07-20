@@ -8,7 +8,9 @@ import com.anv.dto.AttendanceResponse;
 import com.anv.dto.BatchResponse;
 import com.anv.dto.FeeReceiptResponse;
 import com.anv.dto.StudentDto;
+import com.anv.entity.Attendance;
 import com.anv.entity.Batch;
+import com.anv.entity.FeeReceipt;
 import com.anv.entity.Student;
 import com.anv.service.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,14 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.save(student);
 
         return dto;
+    }
+
+    @Override
+    public StudentDto getStudent(String studentId) {
+        Student student = studentRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        return mapToDto(student);
     }
 
     @Override
@@ -118,31 +128,94 @@ public class StudentServiceImpl implements StudentService {
 
         return dto;
     }
-    @Override
-    public StudentDto getStudentProfile(String studentId) {
-        return getStudentByStudentId(studentId);
-    }
+
 
     @Override
-    public BatchResponse getBatchDetails(String studentId) {
-        StudentDto studentDto = getStudentByStudentId(studentId);
-        BatchResponse response = new BatchResponse();
-        response.setBatchCode(studentDto.getBatchCode());
+    public BatchResponse getBatch(String studentId) {
+        Student student = studentRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        return mapToBatchResponse(student.getBatch());
+    }
+
+
+
+    @Override
+    public AttendanceResponse getLatestAttendance(String studentId) {
+        Student student = studentRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        Attendance attendance = attendanceRepository
+                .findFirstByStudentOrderByDateDesc(student)
+                .orElseThrow(() -> new RuntimeException("Attendance not found"));
+
+        AttendanceResponse response = new AttendanceResponse();
+
+        response.setStudentId(student.getStudentId());
+        response.setStudentName(student.getName());
+        response.setDate(attendance.getDate());
+        response.setStatus(attendance.getStatus());
+        response.setRemarks(attendance.getRemarks());
+
         return response;
     }
 
     @Override
-    public AttendanceResponse getLatestAttendance(String studentId) {
-        return null;
-    }
-
-    @Override
     public FeeReceiptResponse getLatestFeeReceipt(String studentId) {
-        return null;
+        Student student = studentRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        FeeReceipt receipt = feeReceiptRepository
+                .findTopByStudentOrderByPaymentDateDesc(student)
+                .orElseThrow(() -> new RuntimeException("Receipt not found"));
+
+        FeeReceiptResponse response = new FeeReceiptResponse();
+
+        response.setReceiptNumber(receipt.getReceiptNumber());
+        response.setStudentId(student.getStudentId());
+        response.setStudentName(student.getName());
+        response.setAmount(receipt.getAmount());
+        response.setPaymentDate(receipt.getPaymentDate());
+        response.setPaymentMode(receipt.getPaymentMode());
+        response.setTransactionId(receipt.getTransactionId());
+        response.setPaymentStatus(receipt.getPaymentStatus());
+
+        return response;
     }
 
     @Override
     public Double getRemainingFee(String studentId) {
-        return null;
+        Student student = studentRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        return student.getTotalFee() - student.getFeePaid();
+    }
+
+    @Override
+    public BatchResponse getBatchDetails(String studentId) {
+        return getBatch(studentId);
+    }
+
+
+    @Override
+    public StudentDto getStudentProfile(String studentId) {
+        return getStudent(studentId);
+    }
+
+    private BatchResponse mapToBatchResponse(Batch batch) {
+
+        BatchResponse response = new BatchResponse();
+
+        response.setBatchCode(batch.getBatchCode());
+        response.setCourse(batch.getCourse());
+        response.setTrainerName(batch.getTrainerName());
+        response.setStartDate(batch.getStartDate());
+        response.setEndDate(batch.getEndDate());
+        response.setTiming(batch.getTiming());
+        response.setRoomNo(batch.getRoomNo());
+        response.setMode(batch.getMode());
+        response.setStatus(batch.getStatus());
+
+        return response;
     }
 }

@@ -8,12 +8,21 @@ public interface AttendanceService {
 
     AttendanceResponse saveAttendance(AttendanceResponse attendanceResponse);
 
-    AttendanceResponse getAttendance(Long id);
+    AttendanceResponse getAttendance(Long attendanceId);
+
+    List<AttendanceResponse> getAttendanceByStudent(Long studentId);
 
     List<AttendanceResponse> getAllAttendance();
 
-    AttendanceResponse updateAttendance(Long id, AttendanceResponse attendanceResponse);
+    AttendanceResponse updateAttendance(Long attendanceId,
+                                        AttendanceResponse attendanceResponse);
 
-    void deleteAttendance(Long id);
+    void deleteAttendance(Long attendanceId);
+
+    Double getAttendancePercentage(Long studentId);
+
+    AttendanceResponse getTodayAttendance(Long studentId);
+
+    List<AttendanceResponse> getAttendanceHistory(Long studentId);
 
 }

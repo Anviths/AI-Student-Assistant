@@ -1,43 +1,45 @@
 package com.anv.tool;
 
-import com.anv.dto.AttendanceResponse;
-import com.anv.dto.BatchResponse;
-import com.anv.dto.FeeReceiptResponse;
 import com.anv.dto.StudentDto;
 import com.anv.service.StudentService;
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class StudentTool {
+
     private final StudentService studentService;
 
     @Tool(description = "Get student profile using student id")
     public StudentDto getStudentProfile(String studentId) {
-        return studentService.getStudentProfile(studentId);
+        return studentService.getStudent(studentId);
     }
 
-    @Tool(description = "Get batch details of a student using student id")
-    public BatchResponse getBatchDetails(String studentId) {
-        return studentService.getBatchDetails(studentId);
+    @Tool(description = "Get complete student details")
+    public StudentDto getStudentDetails(String studentId) {
+        return studentService.getStudent(studentId);
     }
 
-    @Tool(description = "Get latest attendance of a student using student id")
-    public AttendanceResponse getLatestAttendance(String studentId) {
-        return studentService.getLatestAttendance(studentId);
+    @Tool(description = "Get student's course")
+    public String getCourse(String studentId) {
+        return studentService.getStudent(studentId).getCourse();
     }
 
-    @Tool(description = "Get latest fee receipt using student id")
-    public FeeReceiptResponse getLatestFeeReceipt(String studentId) {
-        return studentService.getLatestFeeReceipt(studentId);
+    @Tool(description = "Get student's email")
+    public String getEmail(String studentId) {
+        return studentService.getStudent(studentId).getEmail();
     }
 
-    @Tool(description = "Get remaining fee amount of a student using student id")
-    public Double getRemainingFee(String studentId) {
-        return studentService.getRemainingFee(studentId);
+    @Tool(description = "Get student's phone number")
+    public String getPhone(String studentId) {
+        return studentService.getStudent(studentId).getPhone();
+    }
+
+    @Tool(description = "Get student status")
+    public String getStudentStatus(String studentId) {
+        return studentService.getStudent(studentId).getStatus().name();
     }
 
 }

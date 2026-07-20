@@ -11,16 +11,17 @@ public interface StudentService {
 
     StudentDto saveStudent(StudentDto studentDto);
 
-    StudentDto getStudentByStudentId(String studentId);
+    StudentDto getStudent(String studentId);
 
     List<StudentDto> getAllStudents();
 
     StudentDto updateStudent(String studentId, StudentDto studentDto);
 
     void deleteStudent(String studentId);
+
     StudentDto getStudentProfile(String studentId);
 
-    BatchResponse getBatchDetails(String studentId);
+    BatchResponse getBatch(String studentId);
 
     AttendanceResponse getLatestAttendance(String studentId);
 
@@ -28,4 +29,6 @@ public interface StudentService {
 
     Double getRemainingFee(String studentId);
 
+    BatchResponse getBatchDetails(String studentId);
+     StudentDto getStudentByStudentId(String studentId);
 }

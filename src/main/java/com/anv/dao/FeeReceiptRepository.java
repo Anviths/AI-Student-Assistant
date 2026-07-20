@@ -9,9 +9,12 @@ import java.util.Optional;
 
 public interface FeeReceiptRepository extends JpaRepository<FeeReceipt, Long> {
 
-    List<FeeReceipt> findByStudent(Student student);
 
     Optional<FeeReceipt> findTopByStudentOrderByPaymentDateDesc(Student student);
 
     Optional<FeeReceipt> findByReceiptNumber(String receiptNumber);
+
+    List<FeeReceipt> findByStudent(Student student);
+
+    Optional<FeeReceipt> findFirstByStudentOrderByPaymentDateDesc(Student student);
 }

@@ -1,6 +1,5 @@
 package com.anv.service.imp;
 
-
 import com.anv.dao.FeeReceiptRepository;
 import com.anv.dao.StudentRepository;
 import com.anv.dto.FeeReceiptResponse;
@@ -35,9 +34,7 @@ public class FeeReceiptServiceImpl implements FeeReceiptService {
         receipt.setTransactionId(response.getTransactionId());
         receipt.setPaymentStatus(response.getPaymentStatus());
 
-        feeReceiptRepository.save(receipt);
-
-        return mapToResponse(receipt);
+        return map(feeReceiptRepository.save(receipt));
     }
 
     @Override
@@ -46,7 +43,7 @@ public class FeeReceiptServiceImpl implements FeeReceiptService {
         FeeReceipt receipt = feeReceiptRepository.findByReceiptNumber(receiptNumber)
                 .orElseThrow(() -> new RuntimeException("Receipt not found"));
 
-        return mapToResponse(receipt);
+        return map(receipt);
     }
 
     @Override
@@ -54,29 +51,24 @@ public class FeeReceiptServiceImpl implements FeeReceiptService {
 
         return feeReceiptRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(this::map)
                 .toList();
     }
 
     @Override
-    public FeeReceiptResponse updateReceipt(String receiptNumber, FeeReceiptResponse response) {
+    public FeeReceiptResponse updateReceipt(String receiptNumber,
+                                            FeeReceiptResponse response) {
 
         FeeReceipt receipt = feeReceiptRepository.findByReceiptNumber(receiptNumber)
                 .orElseThrow(() -> new RuntimeException("Receipt not found"));
 
-        Student student = studentRepository.findByStudentId(response.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-        receipt.setStudent(student);
         receipt.setAmount(response.getAmount());
         receipt.setPaymentDate(response.getPaymentDate());
         receipt.setPaymentMode(response.getPaymentMode());
         receipt.setTransactionId(response.getTransactionId());
         receipt.setPaymentStatus(response.getPaymentStatus());
 
-        feeReceiptRepository.save(receipt);
-
-        return mapToResponse(receipt);
+        return map(feeReceiptRepository.save(receipt));
     }
 
     @Override
@@ -88,25 +80,52 @@ public class FeeReceiptServiceImpl implements FeeReceiptService {
         feeReceiptRepository.delete(receipt);
     }
 
-    // ====================== Mapper ======================
+    @Override
+    public Double getPendingFee(Long studentId) {
 
-    private FeeReceiptResponse mapToResponse(FeeReceipt receipt) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        return student.getTotalFee() - student.getFeePaid();
+    }
+
+    @Override
+    public List<FeeReceiptResponse> getPaymentHistory(Long studentId) {
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        return feeReceiptRepository.findByStudent(student)
+                .stream()
+                .map(this::map)
+                .toList();
+    }
+
+    @Override
+    public FeeReceiptResponse getLatestReceipt(Long studentId) {
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        FeeReceipt receipt = feeReceiptRepository
+                .findFirstByStudentOrderByPaymentDateDesc(student)
+                .orElseThrow(() -> new RuntimeException("No receipt found"));
+
+        return map(receipt);
+    }
+
+    private FeeReceiptResponse map(FeeReceipt receipt) {
 
         FeeReceiptResponse response = new FeeReceiptResponse();
 
-        response.setReceiptNumber(receipt.getReceiptNumber());
         response.setStudentId(receipt.getStudent().getStudentId());
+        response.setReceiptNumber(receipt.getReceiptNumber());
         response.setStudentName(receipt.getStudent().getName());
         response.setAmount(receipt.getAmount());
         response.setPaymentDate(receipt.getPaymentDate());
         response.setPaymentMode(receipt.getPaymentMode());
         response.setTransactionId(receipt.getTransactionId());
         response.setPaymentStatus(receipt.getPaymentStatus());
-
-        double remainingFee = receipt.getStudent().getTotalFee()
-                - receipt.getStudent().getFeePaid();
-
-        response.setRemainingFee(remainingFee);
 
         return response;
     }

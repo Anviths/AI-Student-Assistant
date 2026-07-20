@@ -1,46 +1,30 @@
 package com.anv.controller;
 
+import com.anv.agent.AgentRouter;
 import com.anv.dto.AIResponse;
 import com.anv.dto.PromptRequest;
 import com.anv.propmt.SystemPrompt;
 import com.anv.service.StudentService;
 import com.anv.tool.StudentTool;
+import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/ai")
 public class StudentAIController {
-    private final ChatClient chatClient;
-    private final StudentService studentService;
-    private static final String CHAT_ID = ChatMemory.CONVERSATION_ID;
 
-    public StudentAIController(ChatClient.Builder chatClient, StudentService studentService, StudentTool studentTool, ChatMemory chatMemory, VectorStore vectorStore) {
-        this.chatClient = chatClient
-                .defaultTools(studentTool)
-                .defaultSystem(SystemPrompt.SYSTEM_PROMPT)
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        QuestionAnswerAdvisor.builder(vectorStore).build())
-                .build();
-        this.studentService = studentService;
+    private final AgentRouter agentRouter;
 
-    }
+    @PostMapping("/chat/{studentId}")
+    public AIResponse chat(@PathVariable long studentId, @RequestBody PromptRequest request) {
 
-    @PostMapping("/chat")
-    public AIResponse chat(@RequestBody PromptRequest request) {
-
-        String response = chatClient.prompt()
-                .user(request.getPrompt())
-                .advisors(a->a.param(CHAT_ID,1))
-                .call()
-                .content();
+        String response = agentRouter.route(request.getPrompt());
 
         return new AIResponse(response);
     }

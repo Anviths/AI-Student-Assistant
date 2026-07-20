@@ -16,4 +16,16 @@ public interface BatchService {
 
     void deleteBatch(String batchCode);
 
+    List<String> getStudents(String batchCode);
+
+    String getTrainer(String batchCode);
+
+    String getSchedule(String batchCode);
+
+    String getRoomNumber(String batchCode);
+
+    String getBatchTiming(String batchCode);
+
+    String getBatchMode(String batchCode);
+
 }

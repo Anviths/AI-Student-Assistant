@@ -1,6 +1,5 @@
 package com.anv.service.imp;
 
-
 import com.anv.dao.BatchRepository;
 import com.anv.dto.BatchResponse;
 import com.anv.entity.Batch;
@@ -31,9 +30,7 @@ public class BatchServiceImpl implements BatchService {
         batch.setMode(response.getMode());
         batch.setStatus(response.getStatus());
 
-        batchRepository.save(batch);
-
-        return mapToResponse(batch);
+        return map(batchRepository.save(batch));
     }
 
     @Override
@@ -42,7 +39,7 @@ public class BatchServiceImpl implements BatchService {
         Batch batch = batchRepository.findByBatchCode(batchCode)
                 .orElseThrow(() -> new RuntimeException("Batch not found"));
 
-        return mapToResponse(batch);
+        return map(batch);
     }
 
     @Override
@@ -50,7 +47,7 @@ public class BatchServiceImpl implements BatchService {
 
         return batchRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(this::map)
                 .toList();
     }
 
@@ -69,9 +66,7 @@ public class BatchServiceImpl implements BatchService {
         batch.setMode(response.getMode());
         batch.setStatus(response.getStatus());
 
-        batchRepository.save(batch);
-
-        return mapToResponse(batch);
+        return map(batchRepository.save(batch));
     }
 
     @Override
@@ -83,9 +78,60 @@ public class BatchServiceImpl implements BatchService {
         batchRepository.delete(batch);
     }
 
-    // ====================== Mapper ======================
+    @Override
+    public List<String> getStudents(String batchCode) {
 
-    private BatchResponse mapToResponse(Batch batch) {
+        Batch batch = batchRepository.findByBatchCode(batchCode)
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+
+        return batch.getStudents()
+                .stream()
+                .map(student -> student.getStudentId())
+                .toList();
+    }
+
+    @Override
+    public String getTrainer(String batchCode) {
+
+        return batchRepository.findByBatchCode(batchCode)
+                .orElseThrow(() -> new RuntimeException("Batch not found"))
+                .getTrainerName();
+    }
+
+    @Override
+    public String getSchedule(String batchCode) {
+
+        Batch batch = batchRepository.findByBatchCode(batchCode)
+                .orElseThrow(() -> new RuntimeException("Batch not found"));
+
+        return batch.getStartDate() + " to " + batch.getEndDate();
+    }
+
+    @Override
+    public String getRoomNumber(String batchCode) {
+
+        return batchRepository.findByBatchCode(batchCode)
+                .orElseThrow(() -> new RuntimeException("Batch not found"))
+                .getRoomNo();
+    }
+
+    @Override
+    public String getBatchTiming(String batchCode) {
+
+        return batchRepository.findByBatchCode(batchCode)
+                .orElseThrow(() -> new RuntimeException("Batch not found"))
+                .getTiming();
+    }
+
+    @Override
+    public String getBatchMode(String batchCode) {
+
+        return batchRepository.findByBatchCode(batchCode)
+                .orElseThrow(() -> new RuntimeException("Batch not found"))
+                .getMode();
+    }
+
+    private BatchResponse map(Batch batch) {
 
         BatchResponse response = new BatchResponse();
 

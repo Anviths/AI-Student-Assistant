@@ -12,8 +12,15 @@ public interface FeeReceiptService {
 
     List<FeeReceiptResponse> getAllReceipts();
 
-    FeeReceiptResponse updateReceipt(String receiptNumber, FeeReceiptResponse response);
+    FeeReceiptResponse updateReceipt(String receiptNumber,
+                                     FeeReceiptResponse response);
 
     void deleteReceipt(String receiptNumber);
+
+    Double getPendingFee(Long studentId);
+
+    List<FeeReceiptResponse> getPaymentHistory(Long studentId);
+
+    FeeReceiptResponse getLatestReceipt(Long studentId);
 
 }
